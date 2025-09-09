@@ -10,7 +10,7 @@ require (
 	github.com/diamondburned/gotk4/pkg v0.3.1
 	github.com/google/go-github/v55 v55.0.0
 	github.com/jaypipes/ghw v0.17.0
-	golang.org/x/sys v0.34.0
+	golang.org/x/sys v0.36.0
 )
 
 require (
