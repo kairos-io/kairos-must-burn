@@ -9,6 +9,7 @@ require (
 	github.com/bi-zone/wmi v1.1.4
 	github.com/diamondburned/gotk4/pkg v0.3.1
 	github.com/google/go-github/v55 v55.0.0
+	github.com/google/go-github/v74 v74.0.0
 	github.com/jaypipes/ghw v0.17.0
 	golang.org/x/sys v0.34.0
 )
