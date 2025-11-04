@@ -13,7 +13,7 @@ builds:
       - amd64
     ldflags:
       - -w -s -H=windowsgui
-    binary: '{{ .ProjectName }}'
+    binary: '{{ .ProjectName }}_{{ .Tag }}_windows_amd64.exe'
     id: build-windows
   - env:
       - CGO_ENABLED=1
@@ -23,7 +23,7 @@ builds:
       - amd64
     ldflags:
       - -w -s
-    binary: '{{ .ProjectName }}'
+    binary: '{{ .ProjectName }}_{{ .Tag }}_linux_amd64'
     id: build-linux
   - env:
       - CGO_ENABLED=1
@@ -33,6 +33,6 @@ builds:
       - arm64
     ldflags:
       - -w -s
-    binary: '{{ .ProjectName }}'
+    binary: '{{ .ProjectName }}_{{ .Tag }}_darwin_arm64'
     # TODO: after build, it should copy the binary into the kairos-must-burn.app dir to have a proper macos app
     id: build-darwin
