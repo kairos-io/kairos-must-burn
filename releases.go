@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Masterminds/semver/v3"
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v77/github"
 	"os"
 	"path/filepath"
 	"strings"
