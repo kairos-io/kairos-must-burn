@@ -364,6 +364,17 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 		var releaseAssets []ReleaseAsset // Store assets for dropdown logic
 		var lastAssetList []string       // Keep last asset list for filtering
 
+		// Helper function to get all ISO assets for a specific version
+		getAssetsForVersion := func(version string) []ReleaseAsset {
+			var assets []ReleaseAsset
+			for _, a := range releaseAssets {
+				if a.Version == version && isISOFile(a.Name) {
+					assets = append(assets, a)
+				}
+			}
+			return assets
+		}
+
 		// Helper function to update filteredAssets based on displayed asset names
 		updateFilteredAssets := func(displayedNames []string, allAssets []ReleaseAsset) {
 			filteredAssets = nil
@@ -437,13 +448,10 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 			selectedVersion := selectedStr.String()
 
 			// Get all assets for the selected version
-			var versionAssets []ReleaseAsset
+			versionAssets := getAssetsForVersion(selectedVersion)
 			var assetList []string
-			for _, a := range releaseAssets {
-				if a.Version == selectedVersion && isISOFile(a.Name) {
-					assetList = append(assetList, a.Name)
-					versionAssets = append(versionAssets, a)
-				}
+			for _, a := range versionAssets {
+				assetList = append(assetList, a.Name)
 			}
 			lastAssetList = assetList
 
@@ -476,12 +484,7 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 				selectedStr, ok := selectedObj.Cast().(*gtk.StringObject)
 				if ok {
 					selectedVersion := selectedStr.String()
-					var versionAssets []ReleaseAsset
-					for _, a := range releaseAssets {
-						if a.Version == selectedVersion && isISOFile(a.Name) {
-							versionAssets = append(versionAssets, a)
-						}
-					}
+					versionAssets := getAssetsForVersion(selectedVersion)
 					updateFilteredAssets(filtered, versionAssets)
 				}
 			}
