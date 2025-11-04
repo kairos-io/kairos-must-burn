@@ -60,7 +60,7 @@ jobs:
         shell: msys2 {0}
         run: goreleaser build --snapshot --clean --id ${{ matrix.build_id }}
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: kairos-must-burn-${{ matrix.os }}-binaries
           path: |
