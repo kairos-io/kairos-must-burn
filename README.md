@@ -16,6 +16,12 @@
 
 ---
 
+## Usage
+
+See [USAGE.md](USAGE.md) for detailed instructions on how to use Kairos Burner.
+
+---
+
 ## Contributing
 
 Pull requests and issues are welcome! Please open an issue to discuss major changes first.

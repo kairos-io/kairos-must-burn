@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/diamondburned/gotk4/pkg/gio/v2"
+	"github.com/diamondburned/gotk4/pkg/glib/v2"
 	"github.com/diamondburned/gotk4/pkg/gtk/v4"
 )
 
@@ -151,13 +152,14 @@ func main() {
 				file, err := dialog.OpenFinish(res)
 				if err == nil && file != nil {
 					isoPath = file.Path()
-					isoBtn.SetLabel("ISO: " + isoPath)
-					if drive != "" {
-						burnBtn.SetSensitive(true)
-					} else {
-						burnBtn.SetSensitive(false)
-					}
-
+					glib.IdleAdd(func() {
+						isoBtn.SetLabel("ISO: " + file.Path())
+						if drive != "" {
+							burnBtn.SetSensitive(true)
+						} else {
+							burnBtn.SetSensitive(false)
+						}
+					})
 				}
 			})
 		})
@@ -213,13 +215,15 @@ func main() {
 
 		// Pass a callback to getDownloadWindow to set isoPath and update isoBtn label
 		layout.Append(getDownloadWindow(func(newPath string) {
-			isoPath = newPath
-			isoBtn.SetLabel("ISO: " + isoPath)
-			if drive != "" {
-				burnBtn.SetSensitive(true)
-			} else {
-				burnBtn.SetSensitive(false)
-			}
+			glib.IdleAdd(func() {
+				isoPath = newPath
+				isoBtn.SetLabel("ISO: " + newPath)
+				if drive != "" {
+					burnBtn.SetSensitive(true)
+				} else {
+					burnBtn.SetSensitive(false)
+				}
+			})
 		}))
 
 		layout.Append(driveBox)
