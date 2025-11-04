@@ -16,9 +16,50 @@ import (
 	"strings"
 )
 
+const (
+	isoFileExtension = ".iso"
+)
+
 var filteredAssets []ReleaseAsset // Store filtered assets for dropdowns
 var saveFilePath string           // Store the path to save the downloaded file
-// This covers the
+
+// filterStrings filters a list of strings based on a search query.
+// If the query is a valid regex, it uses regex matching; otherwise, it performs a case-insensitive substring search.
+func filterStrings(items []string, searchQuery string) []string {
+	if searchQuery == "" {
+		return items
+	}
+
+	var filtered []string
+	searchLower := strings.ToLower(searchQuery)
+
+	// Try to compile as regex
+	re, err := regexp.Compile(searchLower)
+	useRegex := err == nil
+
+	for _, item := range items {
+		itemLower := strings.ToLower(item)
+		var matches bool
+
+		if useRegex {
+			matches = re.MatchString(itemLower)
+		} else {
+			// Fall back to simple substring search if regex compilation failed
+			matches = strings.Contains(itemLower, searchLower)
+		}
+
+		if matches {
+			filtered = append(filtered, item)
+		}
+	}
+
+	return filtered
+}
+
+// isISOFile checks if a filename has the ISO extension
+func isISOFile(filename string) bool {
+	return strings.HasSuffix(filename, isoFileExtension)
+}
 
 func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 	downloadBtn := gtk.NewButtonWithLabel("Download ISOs")
@@ -358,7 +399,7 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 				filteredAssets = nil
 				var assetList []string
 				for _, a := range assets {
-					if a.Version == latestVersion && strings.HasSuffix(a.Name, ".iso") {
+					if a.Version == latestVersion && isISOFile(a.Name) {
 						assetList = append(assetList, a.Name)
 						filteredAssets = append(filteredAssets, a)
 					}
@@ -386,7 +427,7 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 			filteredAssets = nil
 			assetList := []string{}
 			for _, a := range releaseAssets {
-				if a.Version == selectedVersion && strings.HasSuffix(a.Name, ".iso") {
+				if a.Version == selectedVersion && isISOFile(a.Name) {
 					assetList = append(assetList, a.Name)
 					filteredAssets = append(filteredAssets, a)
 				}
@@ -415,19 +456,15 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 			selectedVersion := selectedStr.String()
 			var assetList []string
 			for _, a := range releaseAssets {
-				if a.Version == selectedVersion && strings.HasSuffix(a.Name, ".iso") {
+				if a.Version == selectedVersion && isISOFile(a.Name) {
 					assetList = append(assetList, a.Name)
 				}
 			}
 			lastAssetList = assetList
 			// Apply search filter if any
-			search := strings.ToLower(assetSearchEntry.Text())
-			var filtered []string
-			for _, name := range assetList {
-				if search == "" || strings.Contains(strings.ToLower(name), search) {
-					filtered = append(filtered, name)
-				}
-			}
+			search := assetSearchEntry.Text()
+			filtered := filterStrings(assetList, search)
+
 			if len(filtered) == 0 {
 				assetDropdown.SetModel(gtk.NewStringList([]string{"No assets available"}))
 				assetDropdown.SetSensitive(false)
@@ -441,30 +478,9 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 
 		// Filter asset dropdown on search entry change
 		assetSearchEntry.Connect("search-changed", func() {
-			search := strings.ToLower(assetSearchEntry.Text())
-			var filtered []string
-			var re *regexp.Regexp
-			var err error
-			if search == "" {
-				// empty search, show all assets
-				assetDropdown.SetModel(gtk.NewStringList(lastAssetList))
-				assetDropdown.SetSensitive(true)
-				return
-			}
-			for _, name := range lastAssetList {
-				re, err = regexp.Compile(search)
-				if re == nil && err != nil {
-					// simple search
-					if strings.Contains(strings.ToLower(name), search) {
-						filtered = append(filtered, name)
-					}
-				} else {
-					// regex search
-					if re.MatchString(strings.ToLower(name)) {
-						filtered = append(filtered, name)
-					}
-				}
-			}
+			search := assetSearchEntry.Text()
+			filtered := filterStrings(lastAssetList, search)
+
 			if len(filtered) == 0 {
 				assetDropdown.SetModel(gtk.NewStringList([]string{"No assets available"}))
 				assetDropdown.SetSensitive(false)
@@ -479,28 +495,9 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 		// Filter version dropdown on search entry change
 		// connect to search-changed with adds a delay otherwise the trigger is instant
 		versionSearchEntry.Connect("search-changed", func() {
-			search := strings.ToLower(versionSearchEntry.Text())
-			var filtered []string
-			var re *regexp.Regexp
-			var err error
-			if search == "" {
-				// empty search, show all versions
-				versionDropdown.SetModel(gtk.NewStringList(lastVersionList))
-				versionDropdown.SetSensitive(true)
-				return
-			}
-			for _, v := range lastVersionList {
-				re, err = regexp.Compile(search)
-				if re == nil && err != nil {
-					if strings.Contains(strings.ToLower(v), search) {
-						filtered = append(filtered, v)
-					}
-				} else {
-					if re.MatchString(strings.ToLower(v)) {
-						filtered = append(filtered, v)
-					}
-				}
-			}
+			search := versionSearchEntry.Text()
+			filtered := filterStrings(lastVersionList, search)
+
 			if len(filtered) == 0 {
 				versionDropdown.SetModel(gtk.NewStringList([]string{"No versions found"}))
 				versionDropdown.SetSensitive(false)

@@ -19,6 +19,20 @@ type ReleaseAsset struct {
 	ID      int64 // Add asset ID for unique identification
 }
 
+// Excluded release version patterns (case-insensitive substrings)
+var excludedReleasePatterns = []string{"rc", "beta", "alpha"}
+
+// isExcludedRelease checks if a version should be excluded based on patterns
+func isExcludedRelease(version string) bool {
+	versionLower := strings.ToLower(version)
+	for _, pattern := range excludedReleasePatterns {
+		if strings.Contains(versionLower, pattern) {
+			return true
+		}
+	}
+	return false
+}
+
 // FetchReleaseAssets fetches releases and parses assets
 func FetchReleaseAssets(ctx context.Context, owner, repo string) ([]ReleaseAsset, error) {
 	client := github.NewClient(nil)
@@ -30,8 +44,8 @@ func FetchReleaseAssets(ctx context.Context, owner, repo string) ([]ReleaseAsset
 	versionAssets := make(map[string][]ReleaseAsset)
 	for _, rel := range releases {
 		version := rel.GetTagName()
-		// Exclude RC and beta releases
-		if strings.Contains(strings.ToLower(version), "rc") || strings.Contains(strings.ToLower(version), "beta") {
+		// Exclude pre-release versions using the helper function
+		if isExcludedRelease(version) {
 			continue
 		}
 		if _, err := semver.NewVersion(version); err != nil {
