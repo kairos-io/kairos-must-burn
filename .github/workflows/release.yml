@@ -29,7 +29,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install Goreleaser
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v6
         with:
           install-only: 'true'
       - name: Install GTK and GLib dependencies (Linux)
@@ -56,7 +56,7 @@ jobs:
             mingw-w64-x86_64-gcc
       - name: Build with Goreleaser
         if: matrix.os != 'windows-latest'
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v6
         with:
           args: build --clean --id ${{ matrix.build_id }}
       - name: Build with Goreleaser (for Windows MSYS2)
