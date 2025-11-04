@@ -1,0 +1,67 @@
+name: Build PR Binaries
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    name: Build on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            build_id: build-linux
+          - os: windows-latest
+            build_id: build-windows
+          - os: macos-latest
+            build_id: build-darwin
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install Goreleaser
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          install-only: 'true'
+      - name: Install GTK and GLib dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-4-dev libglib2.0-dev pkg-config libgirepository1.0-dev libgraphene-1.0-dev
+      - name: Install GTK and GLib dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install gtk4 glib gobject-introspection graphene
+      - name: Install GTK and GLib dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: msys2/setup-msys2@v2
+        with:
+          path-type: 'inherit' # Ensure other binaries are in PATH like goreleaser itself
+          install: >-
+            mingw-w64-x86_64-gtk4
+            mingw-w64-x86_64-glib2
+            mingw-w64-x86_64-pkg-config
+            mingw-w64-x86_64-gobject-introspection
+            mingw-w64-x86_64-graphene
+            mingw-w64-x86_64-gcc
+      - name: Build with Goreleaser
+        if: matrix.os != 'windows-latest'
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          args: build --snapshot --clean --id ${{ matrix.build_id }}
+      - name: Build with Goreleaser (for Windows MSYS2)
+        if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
+        run: goreleaser build --snapshot --clean --id ${{ matrix.build_id }}
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kairos-must-burn-${{ matrix.os }}-binaries
+          path: |
+            dist/build-*/kairos-must-burn*
