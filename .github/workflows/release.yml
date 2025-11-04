@@ -56,8 +56,14 @@ jobs:
         if: matrix.os != 'windows-latest'
         uses: goreleaser/goreleaser-action@v4
         with:
-          args: release --clean --id ${{ matrix.build_id }}
+          args: build --clean --id ${{ matrix.build_id }}
       - name: Build with Goreleaser (for Windows MSYS2)
         if: matrix.os == 'windows-latest'
         shell: msys2 {0}
-        run: goreleaser release --clean --id ${{ matrix.build_id }}
+        run: goreleaser build --clean --id ${{ matrix.build_id }}
+      - name: Release
+        uses: softprops/action-gh-release@v2.1.0
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/build-*/kairos-must-burn*
