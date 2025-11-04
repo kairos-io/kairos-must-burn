@@ -362,6 +362,22 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 
 		// Helper to update dropdowns after fetching assets
 		var releaseAssets []ReleaseAsset // Store assets for dropdown logic
+		var lastAssetList []string       // Keep last asset list for filtering
+
+		// Helper function to update filteredAssets based on displayed asset names
+		updateFilteredAssets := func(displayedNames []string, allAssets []ReleaseAsset) {
+			filteredAssets = nil
+			nameSet := make(map[string]bool)
+			for _, name := range displayedNames {
+				nameSet[name] = true
+			}
+			for _, asset := range allAssets {
+				if nameSet[asset.Name] {
+					filteredAssets = append(filteredAssets, asset)
+				}
+			}
+		}
+
 		// Update lastVersionList after fetching versions
 		updateReleaseDropdowns := func(assets []ReleaseAsset, err error) {
 			spinner.Stop()
@@ -411,41 +427,6 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 			}
 		}
 
-		// Connect versionDropdown to update assetDropdown
-		versionDropdown.Connect("notify::selected", func() {
-			selectedObj := versionDropdown.Model().Item(versionDropdown.Selected())
-			// This should be a GtkStringObject
-			selectedStr, ok := selectedObj.Cast().(*gtk.StringObject)
-			if !ok {
-				return
-			}
-			selectedVersion := selectedStr.String()
-			// Update assetDropdown based on selected version
-			if releaseAssets == nil {
-				return
-			}
-			filteredAssets = nil
-			assetList := []string{}
-			for _, a := range releaseAssets {
-				if a.Version == selectedVersion && isISOFile(a.Name) {
-					assetList = append(assetList, a.Name)
-					filteredAssets = append(filteredAssets, a)
-				}
-			}
-			if len(assetList) == 0 {
-				assetDropdown.SetModel(gtk.NewStringList([]string{"No assets available"}))
-				assetDropdown.SetSensitive(false)
-				return
-			}
-			// Sort asset names
-			sort.Strings(assetList)
-			assetDropdown.SetModel(gtk.NewStringList(assetList))
-			assetDropdown.SetSensitive(true)
-		})
-
-		// Helper to keep last asset list for filtering
-		var lastAssetList []string
-
 		// Update asset dropdown when version changes
 		versionDropdown.Connect("notify::selected", func() {
 			selectedObj := versionDropdown.Model().Item(versionDropdown.Selected())
@@ -454,16 +435,24 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 				return
 			}
 			selectedVersion := selectedStr.String()
+
+			// Get all assets for the selected version
+			var versionAssets []ReleaseAsset
 			var assetList []string
 			for _, a := range releaseAssets {
 				if a.Version == selectedVersion && isISOFile(a.Name) {
 					assetList = append(assetList, a.Name)
+					versionAssets = append(versionAssets, a)
 				}
 			}
 			lastAssetList = assetList
+
 			// Apply search filter if any
 			search := assetSearchEntry.Text()
 			filtered := filterStrings(assetList, search)
+
+			// Update filteredAssets to match the displayed filtered list
+			updateFilteredAssets(filtered, versionAssets)
 
 			if len(filtered) == 0 {
 				assetDropdown.SetModel(gtk.NewStringList([]string{"No assets available"}))
@@ -480,6 +469,22 @@ func getDownloadWindow(onDownloaded func(string)) *gtk.Button {
 		assetSearchEntry.Connect("search-changed", func() {
 			search := assetSearchEntry.Text()
 			filtered := filterStrings(lastAssetList, search)
+
+			// Get all assets for currently selected version to update filteredAssets
+			selectedObj := versionDropdown.Model().Item(versionDropdown.Selected())
+			if selectedObj != nil {
+				selectedStr, ok := selectedObj.Cast().(*gtk.StringObject)
+				if ok {
+					selectedVersion := selectedStr.String()
+					var versionAssets []ReleaseAsset
+					for _, a := range releaseAssets {
+						if a.Version == selectedVersion && isISOFile(a.Name) {
+							versionAssets = append(versionAssets, a)
+						}
+					}
+					updateFilteredAssets(filtered, versionAssets)
+				}
+			}
 
 			if len(filtered) == 0 {
 				assetDropdown.SetModel(gtk.NewStringList([]string{"No assets available"}))
