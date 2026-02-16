@@ -7,6 +7,7 @@ require (
 	github.com/bi-zone/wmi v1.1.4
 	github.com/diamondburned/gotk4/pkg v0.3.1
 	github.com/google/go-github/v77 v77.0.0
+	github.com/google/go-github/v83 v83.0.0
 	github.com/jaypipes/ghw v0.17.0
 	golang.org/x/sys v0.38.0
 )
@@ -16,7 +17,7 @@ require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/bi-zone/go-ole v1.2.5 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.0.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
