@@ -2,6 +2,8 @@ github.com/KarpelesLab/weak v0.1.1 h1:fNnlPo3aypS9tBzoEQluY13XyUfd/eWaSE/vMvo9s4
 github.com/KarpelesLab/weak v0.1.1/go.mod h1:pzXsWs5f2bf+fpgHayTlBE1qJpO3MpJKo5sRaLu1XNw=
 github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
 github.com/Masterminds/semver/v3 v3.4.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
+github.com/Masterminds/semver/v3 v3.5.0 h1:kQceYJfbupGfZOKZQg0kou0DgAKhzDg2NZPAwZ/2OOE=
+github.com/Masterminds/semver/v3 v3.5.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDOSA=
 github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=
 github.com/bi-zone/go-ole v1.2.5 h1:/4G2KrTbq1e3FsMkd40quzwIrLb4QdxZJnUUlG7UjcM=

@@ -3,7 +3,7 @@ module kairos-must-burn
 go 1.26.4
 
 require (
-	github.com/Masterminds/semver/v3 v3.4.0
+	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/bi-zone/wmi v1.1.4
 	github.com/diamondburned/gotk4/pkg v0.3.1
 	github.com/google/go-github/v77 v77.0.0
