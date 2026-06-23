@@ -9,7 +9,7 @@ require (
 	github.com/google/go-github/v77 v77.0.0
 	github.com/google/go-github/v88 v88.0.0
 	github.com/jaypipes/ghw v0.17.0
-	golang.org/x/sys v0.38.0
+	golang.org/x/sys v0.46.0
 )
 
 require (
